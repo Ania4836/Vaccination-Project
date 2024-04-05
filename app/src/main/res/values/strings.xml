@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Vaccination-Project</string>
+    <string name="err_msg_enter_email">wrong email</string>
+    <string name="err_msg_enter_password">wrong password\n</string>
+    <string name="err_msg_enter_name">Name cant be empty</string>
+    <string name="err_msg_enter_reppassword">please confirm passwords</string>
+    <string name="err_msg_password_mismatch">passwords dont match\n</string>
+    <string name="register_success">Registered succesflully</string>
+</resources>
