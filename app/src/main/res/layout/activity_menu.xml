@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".MenuActivity">
+
+    <Button
+        android:id="@+id/btnAddRecord"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Vaccination Record"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnViewHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Vaccination History"
+        android:layout_below="@id/btnAddRecord"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnSchedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Schedule Vaccination"
+        android:layout_below="@id/btnViewHistory"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnViewCalendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Calendar"
+        android:layout_below="@id/btnSchedule"/>
+
+</RelativeLayout>

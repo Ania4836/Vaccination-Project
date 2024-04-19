@@ -34,6 +34,14 @@
         android:name=".MenuActivity"
         android:label="MenuActivity">
     </activity>
+        <activity
+            android:name=".ScheduleActivity"
+            android:label="ScheduleActivity">
+        </activity>
+        <activity
+            android:name=".CustomCalendarActivity"
+            android:label="CustomCalendarActivity">
+        </activity>
     </application>
 
 </manifest>

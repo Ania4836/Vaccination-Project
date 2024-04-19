@@ -31,15 +31,6 @@ class RegisterActivity : BaseActivity() {
 
 
         var registerButton: Button = findViewById(R.id.registerButton)
-        registerButton.isEnabled = false
-
-        val switchView = findViewById<Switch>(R.id.ageSwitch)
-        switchView.setOnCheckedChangeListener { _, isChecked ->
-            registerButton.isEnabled = isChecked
-            switchView.text = "YES"
-            if (!isChecked)
-                switchView.text = "NO"
-        }
 
 
         inputEmail = findViewById(R.id.inputLEmaill)
