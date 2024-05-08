@@ -1,15 +1,47 @@
 package com.example.vaccination_project.db_connection.vaccination
 
-import android.accounts.Account
-import com.example.vaccination_project.db_connection.account.account
 import java.sql.Connection
 import java.sql.ResultSet
 
-class DBqueriesVaccination(private val connection: Connection): VaccinationDAO {
-    override fun getVaccination(name: String): vaccination? {
-        val query = "{CALL getVaccination(?) }"
+
+class VaccinesQueries(private val connection : Connection) : VaccinesDAO {
+    override fun getVaccineById(id: Int): Vaccines? {
+        val query = "{CALL getVaccineById(?)}"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, vaccine_name)
+        callableStatement.setInt(1, id)
+        val resultSet = callableStatement.executeQuery()
+
+        return if (resultSet.next()) {
+            mapResultSetToVaccine(resultSet)
+        } else {
+            null
+        }
+    }
+class QueriesVaccination(private val connection: Connection): VaccinationDAO {
+
+    override fun updateVaccination(name: String, vaccination: Vaccination): Boolean {
+        val query = "{CALL updateVaccination(?, ?, ?, ?, ?)}"
+        val callableStatement = connection.prepareCall(query)
+        callableStatement.setInt(1, vaccination.id)
+        callableStatement.setString(2, vaccination.vaccineName)
+        callableStatement.setDate(3, vaccination.dateAdministered)
+        callableStatement.setDate(4, vaccination.dueDate)
+        callableStatement.setDate(5, vaccination.nextDoseDate)
+        return callableStatement.executeUpdate() > 0
+    }
+
+    override fun deleteVaccination(name: String): Boolean {
+        val preparedStatement = connection
+            .prepareStatement("DELETE FROM Vaccines WHERE name = ?")
+        preparedStatement.setString(1, name)
+
+        return preparedStatement.executeUpdate() > 0
+    }
+
+    override fun getVaccinationById(name: String): Vaccination? {
+        val query = "{CALL getVaccineById(?)}"
+        val callableStatement = connection.prepareCall(query)
+        callableStatement.setString(1, name)
         val resultSet = callableStatement.executeQuery()
 
         return if (resultSet.next()) {
@@ -19,53 +51,67 @@ class DBqueriesVaccination(private val connection: Connection): VaccinationDAO {
         }
     }
 
-    override fun getAllVaccinations(): Set<vaccination>? {
-        val query = "{CALL getVaccination()}"
+    override fun getVaccinationByName(name: String): Vaccination? {
+        val query = "{CALL getVaccineByName(?)}"
         val callableStatement = connection.prepareCall(query)
+        callableStatement.setString(1, name)
         val resultSet = callableStatement.executeQuery()
-        val skiers = mutableSetOf<Vaccination?>()
-        while (resultSet.next()) {
-            skiers.add(mapResultSetToVaccination(resultSet))
+
+        return if (resultSet.next()) {
+            mapResultSetToVaccination(resultSet)
+        } else {
+            null
         }
-        return if (skiers.isEmpty()) null else vaccination
     }
 
-    override fun updateVaccination(name: String, vaccination: vaccination): Boolean {
-        val query = "{CALL updateVaccination(?, ?, ?, ?, ?)}"
+    override fun getVaccineIdByVaccineName(vaccineName: String): Int {
+        val query = "{CALL getVaccineIdByVaccineName(?)}"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setInt(1, vaccination.id)
-        callableStatement.setString(2, vaccination.vaccine_name)
-        callableStatement.setDate(3, vaccination.date_administered)
-        callableStatement.setDate(4, vaccination.due_date)
-        callableStatement.setDate(5, vaccination.next_dose_date)
-        return callableStatement.executeUpdate() > 0
+        callableStatement.setString(1, vaccineName)
+        val resultSet = callableStatement.executeQuery()
+
+        return if (resultSet.next()) {
+            resultSet.getInt(1)
+        } else {
+            0
+        }
     }
 
-    override fun deleteVaccination(name: String): Boolean {
-        val query = "{CALL deleteVaccination(?)}"
+
+    override fun getAppointmentsCountForVaccine(vaccineName: String): Int {
+        val query = "{? = CALL getAppointmentsCountForVaccine(?)}"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, id)
-        return callableStatement.executeUpdate() > 0
+        callableStatement.registerOutParameter(1, java.sql.Types.INTEGER)
+        callableStatement.setString(2, vaccineName)
+        callableStatement.execute()
+
+        val totalAppointments = callableStatement.getInt(1)
+        callableStatement.close()
+
+        return totalAppointments
     }
 
-    override fun insertVaccination(vaccination: Account): Boolean {
+    override fun insertVaccination(vaccination: Vaccination): Boolean {
         val call = "{CALL insertAccount(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
         statement.setInt(1, vaccination.id)
-        statement.setString(2, vaccination.vaccine_name)
-        statement.setDate(3, vaccination.date_administered)
-        statement.setDate(4, vaccination.due_date)
-        statement.setDate(5, vaccination.next_dose_date)
+        statement.setString(2, vaccination.vaccineName)
+        statement.setDate(3, vaccination.dateAdministered)
+        statement.setDate(4, vaccination.dueDate)
+        statement.setDate(5, vaccination.nextDoseDate)
         val result = !statement.execute()
         statement.close()
+
         return result
     }
 
-    private fun mapResultSetToVaccination(resultSet: ResultSet): Vaccination? {
+    private fun mapResultSetToVaccination(resultSet: ResultSet): Vaccination {
         return Vaccination(
-            username = resultSet.getString("username"),
-            email = resultSet.getString("email"),
-            password = resultSet.getDate("password"),
+            id = resultSet.getInt("id"),
+            vaccineName = resultSet.getString("vaccine_name"),
+            dateAdministered = resultSet.getDate("password"),
+            dueDate = resultSet.getDate("due_date"),
+            nextDoseDate = resultSet.getDate("next_dose_date")
         )
     }
 }

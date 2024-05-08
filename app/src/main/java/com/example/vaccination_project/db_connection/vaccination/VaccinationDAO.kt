@@ -1,11 +1,11 @@
 package com.example.vaccination_project.db_connection.vaccination
 
-import android.accounts.Account
-
 interface VaccinationDAO {
-    fun getVaccination(name: String) : vaccination?
-    fun getAllVaccinations() : Set<vaccination>?
-    fun updateVaccination(name: String, vaccination: vaccination): Boolean
+    fun getVaccinationById(name: String) : Vaccination?
+    fun getVaccinationByName(name: String) : Vaccination?
+    fun getVaccineIdByVaccineName(vaccineName: String): Int
+    fun getAppointmentsCountForVaccine(vaccineName: String): Int
+    fun updateVaccination(name: String, vaccination: Vaccination): Boolean
     fun deleteVaccination(name: String): Boolean
-    fun insertVaccination(vaccination: Account): Boolean
+    fun insertVaccination(vaccination: Vaccination): Boolean
 }
