@@ -2,6 +2,7 @@ package com.example.vaccination_project.db_connection.schedule_date
 
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.SQLException
 
 class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDAO {
 
@@ -15,7 +16,8 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
             mapResultSetToScheduleDate(resultSet)
         } else {
             null
-        }    }
+        }
+    }
 
     override fun getAllScheduleDates(): Set<ScheduleDate>? {
         val query = "{CALL getScheduleDate()}"
@@ -25,15 +27,18 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         while (resultSet.next()) {
             skiers.add(mapResultSetToScheduleDate(resultSet))
         }
-        return if (skiers.isEmpty()) null else schedule_date    }
+        return if (skiers.isEmpty()) null else scheduledDate
+    }
 
     override fun updateScheduleDate(name: String, scheduleDate: ScheduleDate): Boolean {
         val query = "{CALL updateScheduleDate(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)
         callableStatement.setString(1, scheduleDate.status)
-        callableStatement.setString(2, scheduleDate.schedule_date)
-        callableStatement.setDate(3, scheduleDate.user_id)
-        callableStatement.setDate(4, scheduleDate.vaccine_name)
+        callableStatement.setDate(2, scheduleDate.scheduledDate)
+        callableStatement.setInt(3, scheduleDate.userId)
+        callableStatement.setInt(4, scheduleDate.vaccineId)
+        callableStatement.setTime(5, scheduleDate.time)
+
         return callableStatement.executeUpdate() > 0
     }
 
@@ -44,23 +49,32 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         return callableStatement.executeUpdate() > 0
     }
 
+
     override fun insertScheduleDate(user: ScheduleDate): Boolean {
         val call = "{CALL insertScheduleDate(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
-        statement.setString(1, scheduleDate.status)
-        statement.setString(2, scheduleDate.schedule_date)
-        statement.setDate(3, scheduleDate.user_id)
-        statement.setDate(4, scheduleDate.vaccine_name)
+        statement.setInt(1, scheduleDate.id)
+        statement.setInt(2, scheduleDate.vaccineId)
+        statement.setInt(3, scheduleDate.userId)
+        statement.setInt(4, scheduleDate.doctorId)
+        statement.setTime(5, scheduleDate.time)
+        statement.setString(6, scheduleDate.status)
+        statement.setDate(7, scheduleDate.scheduledDate)
         val result = !statement.execute()
         statement.close()
-        return result    }
+        return result
+    }
 
     private fun mapResultSetToScheduleDate(resultSet: ResultSet): ScheduleDate? {
         return ScheduleDate(
+            id = resultSet.getInt("id"),
+            vaccineId = resultSet.getInt("vaccine_id"),
             status = resultSet.getString("status"),
-            schedule_date = resultSet.getString("schedule_date"),
-            user_id = resultSet.getDate("user_id"),
-            vaccine_name = resultSet.getDate("vaccine_name"),
+            userId = resultSet.getInt("user_id"),
+            doctorId = resultSet.getInt("doctors_id"),
+            time = resultSet.getTime("time"),
+            scheduledDate = resultSet.getDate("schedule_date"),
+            dose = resultSet.getInt("dose")
         )
     }
 }

@@ -3,22 +3,7 @@ package com.example.vaccination_project.db_connection.vaccination
 import java.sql.Connection
 import java.sql.ResultSet
 
-
-class VaccinesQueries(private val connection : Connection) : VaccinesDAO {
-    override fun getVaccineById(id: Int): Vaccines? {
-        val query = "{CALL getVaccineById(?)}"
-        val callableStatement = connection.prepareCall(query)
-        callableStatement.setInt(1, id)
-        val resultSet = callableStatement.executeQuery()
-
-        return if (resultSet.next()) {
-            mapResultSetToVaccine(resultSet)
-        } else {
-            null
-        }
-    }
 class QueriesVaccination(private val connection: Connection): VaccinationDAO {
-
     override fun updateVaccination(name: String, vaccination: Vaccination): Boolean {
         val query = "{CALL updateVaccination(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)

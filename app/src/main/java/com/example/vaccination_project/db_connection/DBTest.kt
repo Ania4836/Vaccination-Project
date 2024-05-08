@@ -8,7 +8,6 @@ import com.google.firebase.firestore.auth.User
 import java.sql.Date
 
 fun main() {
-
     try {
         val connection = DBconnection.getConnection()
         val appointmentQuery = DBqueriesScheduleDate(connection)
