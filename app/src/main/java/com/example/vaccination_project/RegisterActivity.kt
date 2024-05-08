@@ -103,7 +103,7 @@ class RegisterActivity : BaseActivity() {
 
             val rowsAffected: Int = insertStatement.executeUpdate()
             if (rowsAffected > 0) {
-                println("User data inserted successfully.")
+                println("Users data inserted successfully.")
             } else {
                 println("Failed to insert user data.")
             }
