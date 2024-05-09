@@ -1,6 +1,5 @@
 package com.example.vaccination_project.db_connection.schedule_date
 
-
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -18,7 +17,6 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
             null
         }
     }
-
 
     override fun getAllScheduleDates(): Set<ScheduleDate?>? {
         val query = "{CALL getScheduleDate()}"
@@ -42,6 +40,7 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         callableStatement.setTime(6, scheduleDate.scheduledTime)
         callableStatement.setString(7, scheduleDate.status)
         callableStatement.setInt(8, scheduleDate.dose ?: 0)
+        callableStatement.setInt(9, scheduleDate.intervalBetweenDoses)
         return callableStatement.executeUpdate() > 0
     }
 
@@ -65,18 +64,20 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
 
         val result = !statement.execute()
         statement.close()
-        return result    }
+        return result
+    }
 
     private fun mapResultSetToScheduleDate(resultSet: ResultSet): ScheduleDate {
         return ScheduleDate(
             id = resultSet.getInt("id"),
-            vaccineId = resultSet.getInt("vaccine_id"),
-            userId = resultSet.getInt("user_id"),
-            doctorId = resultSet.getInt("doctor_id"),
-            scheduledDate = resultSet.getDate("scheduled_date"),
-            scheduledTime = resultSet.getTime("scheduled_time"),
+            vaccineId = resultSet.getInt("vaccineId"),
+            userId = resultSet.getInt("userId"),
+            doctorId = resultSet.getInt("doctorId"),
+            scheduledDate = resultSet.getDate("scheduledDate"),
+            scheduledTime = resultSet.getTime("scheduledTime"),
             status = resultSet.getString("status"),
-            dose = resultSet.getInt("dose")
+            dose = resultSet.getInt("dose"),
+            intervalBetweenDoses = resultSet.getInt("intervalBetweenDoses")
         )
     }
 }

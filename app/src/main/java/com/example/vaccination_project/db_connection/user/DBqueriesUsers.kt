@@ -60,8 +60,6 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
         return result
     }
 
-
-
     private fun mapResultSetToUser(resultSet: ResultSet): Users? {
         return Users(
             userId = resultSet.getInt("user_id"),

@@ -11,6 +11,7 @@ class ScheduleDate (
     val scheduledTime: Time,
     val status: String? = null,
     val scheduledDate: Date,
-    val dose: Int
+    val dose: Int,
+    val intervalBetweenDoses: Int
 )
 

@@ -17,7 +17,6 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
         }
     }
 
-
     override fun updateVaccination(id: Int, vaccination: Vaccination): Boolean {
         val query = "{CALL updateVaccination(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)
@@ -36,6 +35,7 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
 
         return preparedStatement.executeUpdate() > 0
     }
+
     override fun getAllVaccinations(): Set<Vaccination?>? {
         val preparedStatement = connection.prepareStatement("SELECT * FROM Vaccination")
         val resultSet = preparedStatement.executeQuery()
@@ -49,6 +49,7 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
             vaccines
         }
     }
+
     override fun getVaccinationByName(vaccineName: String): Vaccination? {
         val query = "{CALL getVaccinationByName(?)}"
         val callableStatement = connection.prepareCall(query)
@@ -61,8 +62,6 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
             null
         }
     }
-
-
 
     override fun getVaccinationIdByVaccineName(vaccineName: String): Int {
         val query = "{CALL getVaccineIdByVaccineName(?)}"
@@ -77,7 +76,6 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
         }
     }
 
-
     override fun getDosesCountByVaccineName(vaccineName: String): Int {
         val query = "{CALL getDosesByVaccineName(?)}"
         val callableStatement = connection.prepareCall(query)
@@ -91,7 +89,6 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
         }
     }
 
-
     override fun getAppointmentsCountForVaccination(vaccineName: String): Int {
         val query = "{? = CALL getAppointmentsCountForVaccine(?)}"
         val callableStatement = connection.prepareCall(query)
@@ -104,8 +101,6 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
 
         return totalAppointments
     }
-
-
 
     override fun insertVaccination(vaccination: Vaccination): Boolean {
         val call = "{CALL insertVaccination(?, ?, ?, ?, ?)}"
@@ -124,10 +119,10 @@ class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO
     private fun mapResultSetToVaccination(resultSet: ResultSet): Vaccination {
         return Vaccination(
             id = resultSet.getInt("id"),
-            vaccineName = resultSet.getString("vaccine_name"),
-            dateAdministered = resultSet.getDate("date_administered"),
-            dueDate = resultSet.getDate("due_date"),
-            nextDoseDate = resultSet.getDate("next_dose_date")
+            vaccineName = resultSet.getString("vaccineName"),
+            dateAdministered = resultSet.getDate("dateAdministered"),
+            dueDate = resultSet.getDate("dueDate"),
+            nextDoseDate = resultSet.getDate("nextDoseDate")
         )
     }
 }
