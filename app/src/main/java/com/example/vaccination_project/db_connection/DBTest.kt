@@ -20,7 +20,7 @@ fun main() {
         val vaccinationQuery = DBqueriesVaccination(connection)
 
         println("Testing insertUser():")
-        val newUser = Users("13123929", "Jan", "Kowalski", Date.valueOf("1985-08-15"), "Male")
+        val newUser = Users(13123929, "Jan", "Kowalski", Date.valueOf("1985-08-15"), "Male")
         println("Insertion successful:${userQuery.insertUser(newUser)}")
 
         println("Testing getAllUsers():")
@@ -51,7 +51,7 @@ fun main() {
 
         println("Testing updateUser():")
 
-        val updatedUser = Users(" 23456", "Stece", "Jobs", Date.valueOf("1985-08-15"), "Male")
+        val updatedUser = Users( 23456, "Stece", "Jobs", Date.valueOf("1985-08-15"), "Male")
         println("Update successful:${userQuery.updateUser("23456", updatedUser)}")
 
         println("Testing deleteUser():")
