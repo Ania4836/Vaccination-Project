@@ -35,7 +35,7 @@ fun main() {
         println(vaccinationQuery.getAllVaccinations())
 
         println("Testing insertSchedule():")
-        val newScheduleDate = ScheduleDate(1, 1, "12345678901", 1, Time.valueOf("12:30:00"), "Street Street",  Date.valueOf("2021-11-15"),1, 3)
+        val newScheduleDate = ScheduleDate(1, 1, 123, 1, Time.valueOf("12:30:00"), "Street Street",  Date.valueOf("2021-11-15"),1, 3)
         println("Insertion successful: ${scheduleQuery.insertScheduleDate(newScheduleDate)}")
 
         println("Testing getAllScheduleDates():")
