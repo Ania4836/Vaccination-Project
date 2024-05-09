@@ -1,15 +1,15 @@
 package com.example.vaccination_project.db_connection.schedule_date
 
+
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.SQLException
 
 class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDAO {
 
-    override fun getScheduleDate(name: String): ScheduleDate? {
+    override fun getScheduleDateById(id: Int): ScheduleDate? {
         val query = "{CALL getScheduleDate(?) }"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, status)
+        callableStatement.setInt(1, id)
         val resultSet = callableStatement.executeQuery()
 
         return if (resultSet.next()) {
@@ -19,61 +19,75 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         }
     }
 
-    override fun getAllScheduleDates(): Set<ScheduleDate>? {
+
+    override fun getAllScheduleDates(): Set<ScheduleDate?>? {
         val query = "{CALL getScheduleDate()}"
         val callableStatement = connection.prepareCall(query)
         val resultSet = callableStatement.executeQuery()
-        val skiers = mutableSetOf<ScheduleDate?>()
+        val scheduleDate = mutableSetOf<ScheduleDate?>()
         while (resultSet.next()) {
-            skiers.add(mapResultSetToScheduleDate(resultSet))
+            scheduleDate.add(mapResultSetToScheduleDate(resultSet))
         }
-        return if (skiers.isEmpty()) null else scheduledDate
+        return if (scheduleDate.isEmpty()) null else scheduleDate
     }
 
-    override fun updateScheduleDate(name: String, scheduleDate: ScheduleDate): Boolean {
+    //
+//    override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
+//        val query = "{CALL updateAppointment(?, ?, ?, ?, ?, ?, ?, ?)}"
+//        val callableStatement = connection.prepareCall(query)
+//        callableStatement.setInt(1, id)
+//        callableStatement.setInt(2, appointment.vaccineId ?: 0)
+//        callableStatement.setString(3, appointment.pesel)
+//        callableStatement.setInt(4, appointment.doctorId ?: 0)
+//        callableStatement.setDate(5, appointment.date)
+//        callableStatement.setTime(6, appointment.time)
+//        callableStatement.setString(7, appointment.address)
+//        callableStatement.setInt(8, appointment.dose ?: 0)
+    override fun updateScheduleDate(id: Int, scheduleDate: ScheduleDate): Boolean {
         val query = "{CALL updateScheduleDate(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, scheduleDate.status)
-        callableStatement.setDate(2, scheduleDate.scheduledDate)
+        callableStatement.setInt(1, id)
+        callableStatement.setInt(2, scheduleDate.vaccineId ?: 0)
         callableStatement.setInt(3, scheduleDate.userId)
-        callableStatement.setInt(4, scheduleDate.vaccineId)
-        callableStatement.setTime(5, scheduleDate.time)
-
+        callableStatement.setInt(4, scheduleDate.doctorId ?: 0)
+        callableStatement.setDate(5, scheduleDate.scheduledDate)
+        callableStatement.setTime(6, scheduleDate.scheduledTime)
+        callableStatement.setString(7, scheduleDate.status)
+        callableStatement.setInt(8, scheduleDate.dose ?: 0)
         return callableStatement.executeUpdate() > 0
     }
 
-    override fun deleteScheduleDate(name: String): Boolean {
+    override fun deleteScheduleDate(id: Int): Boolean {
         val query = "{CALL deleteScheduleDate(?)}"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setString(1, status)
+        callableStatement.setInt(1, id)
         return callableStatement.executeUpdate() > 0
     }
 
-
-    override fun insertScheduleDate(user: ScheduleDate): Boolean {
-        val call = "{CALL insertScheduleDate(?, ?, ?, ?, ?)}"
+    override fun insertScheduleDate(scheduleDate: ScheduleDate): Boolean {
+        val call = "{CALL insertScheduleDate(?, ?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
-        statement.setInt(1, scheduleDate.id)
-        statement.setInt(2, scheduleDate.vaccineId)
-        statement.setInt(3, scheduleDate.userId)
-        statement.setInt(4, scheduleDate.doctorId)
-        statement.setTime(5, scheduleDate.time)
+        statement.setInt(1, scheduleDate.vaccineId)
+        statement.setInt(2, scheduleDate.userId)
+        statement.setInt(3, scheduleDate.doctorId)
+        statement.setDate(4, scheduleDate.scheduledDate)
+        statement.setTime(5, scheduleDate.scheduledTime)
         statement.setString(6, scheduleDate.status)
-        statement.setDate(7, scheduleDate.scheduledDate)
+        statement.setInt(7, scheduleDate.dose)
+
         val result = !statement.execute()
         statement.close()
-        return result
-    }
+        return result    }
 
-    private fun mapResultSetToScheduleDate(resultSet: ResultSet): ScheduleDate? {
+    private fun mapResultSetToScheduleDate(resultSet: ResultSet): ScheduleDate {
         return ScheduleDate(
             id = resultSet.getInt("id"),
             vaccineId = resultSet.getInt("vaccine_id"),
-            status = resultSet.getString("status"),
             userId = resultSet.getInt("user_id"),
-            doctorId = resultSet.getInt("doctors_id"),
-            time = resultSet.getTime("time"),
-            scheduledDate = resultSet.getDate("schedule_date"),
+            doctorId = resultSet.getInt("doctor_id"),
+            scheduledDate = resultSet.getDate("scheduled_date"),
+            scheduledTime = resultSet.getTime("scheduled_time"),
+            status = resultSet.getString("status"),
             dose = resultSet.getInt("dose")
         )
     }

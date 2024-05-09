@@ -8,7 +8,7 @@ class ScheduleDate (
     val vaccineId: Int,
     val userId: Int,
     val doctorId: Int,
-    val time: Time,
+    val scheduledTime: Time,
     val status: String? = null,
     val scheduledDate: Date,
     val dose: Int
