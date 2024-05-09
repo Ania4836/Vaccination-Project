@@ -31,18 +31,6 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         return if (scheduleDate.isEmpty()) null else scheduleDate
     }
 
-    //
-//    override fun updateAppointment(id: Int, appointment: Appointments): Boolean {
-//        val query = "{CALL updateAppointment(?, ?, ?, ?, ?, ?, ?, ?)}"
-//        val callableStatement = connection.prepareCall(query)
-//        callableStatement.setInt(1, id)
-//        callableStatement.setInt(2, appointment.vaccineId ?: 0)
-//        callableStatement.setString(3, appointment.pesel)
-//        callableStatement.setInt(4, appointment.doctorId ?: 0)
-//        callableStatement.setDate(5, appointment.date)
-//        callableStatement.setTime(6, appointment.time)
-//        callableStatement.setString(7, appointment.address)
-//        callableStatement.setInt(8, appointment.dose ?: 0)
     override fun updateScheduleDate(id: Int, scheduleDate: ScheduleDate): Boolean {
         val query = "{CALL updateScheduleDate(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)
