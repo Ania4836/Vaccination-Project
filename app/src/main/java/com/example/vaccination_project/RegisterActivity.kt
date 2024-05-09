@@ -1,25 +1,35 @@
 package com.example.vaccination_project
 
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import android.widget.Spinner
+import androidx.lifecycle.lifecycleScope
 import com.example.vaccination_project.db_connection.DBconnection
+import com.example.vaccination_project.db_connection.user.DBqueriesUsers
+import com.example.vaccination_project.db_connection.user.Users
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import java.sql.Connection
-import java.sql.PreparedStatement
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.sql.Date
 import java.sql.SQLException
+import java.util.Calendar
+import java.util.Locale
 
 class RegisterActivity : BaseActivity() {
 
     private var inputEmail: EditText? = null
-    private var inputName: EditText? = null
+    private var inputFirstName: EditText? = null
+    private var inputLastName: EditText? = null
     private var inputPassword: EditText? = null
-    private var inputRepPass: EditText? = null
+    private var inputRepeatPassword: EditText? = null
+    private lateinit var inputDOB: EditText
+    private lateinit var inputSex: Spinner
     private lateinit var registerButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,10 +37,24 @@ class RegisterActivity : BaseActivity() {
         setContentView(R.layout.activity_register)
 
         registerButton = findViewById(R.id.registerButton)
-        inputEmail = findViewById(R.id.inputLEmaill)
-        inputName = findViewById(R.id.inputName)
-        inputPassword = findViewById(R.id.inputPassword2)
-        inputRepPass = findViewById(R.id.inputPassword2repeat)
+        inputEmail = findViewById(R.id.inputEmail)
+        inputFirstName = findViewById(R.id.inputFirstName)
+        inputLastName = findViewById(R.id.inputLastName)
+        inputPassword = findViewById(R.id.inputPassword)
+        inputRepeatPassword = findViewById(R.id.inputRepeatPassword)
+        inputDOB = findViewById(R.id.inputDOB)
+        inputSex = findViewById(R.id.inputSex)
+
+
+        val genderOptions = arrayOf("Select Gender", "Male", "Female", "Other")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        inputSex.adapter = adapter
+
+        inputDOB.isFocusable = false
+        inputDOB.setOnClickListener {
+            showDatePickerDialog()
+        }
 
         registerButton.setOnClickListener {
             registerUser()
@@ -43,41 +67,67 @@ class RegisterActivity : BaseActivity() {
                 showErrorSnackBar(resources.getString(R.string.err_msg_enter_email), true)
                 false
             }
-            TextUtils.isEmpty(inputName?.text.toString().trim { it <= ' ' }) -> {
-                showErrorSnackBar(resources.getString(R.string.err_msg_enter_name), true)
+
+            TextUtils.isEmpty(inputFirstName?.text.toString().trim { it <= ' ' }) -> {
+                showErrorSnackBar(resources.getString(R.string.err_msg_enter_first_name), true)
                 false
             }
+
+            TextUtils.isEmpty(inputLastName?.text.toString().trim { it <= ' ' }) -> {
+                showErrorSnackBar(resources.getString(R.string.err_msg_enter_last_name), true)
+                false
+            }
+
             TextUtils.isEmpty(inputPassword?.text.toString().trim { it <= ' ' }) -> {
                 showErrorSnackBar(resources.getString(R.string.err_msg_enter_password), true)
                 false
             }
-            TextUtils.isEmpty(inputRepPass?.text.toString().trim { it <= ' ' }) -> {
-                showErrorSnackBar(resources.getString(R.string.err_msg_enter_reppassword), true)
+
+            TextUtils.isEmpty(inputRepeatPassword?.text.toString().trim { it <= ' ' }) -> {
+                showErrorSnackBar(resources.getString(R.string.err_msg_enter_repeat_password), true)
                 false
             }
-            inputPassword?.text.toString().trim { it <= ' ' } != inputRepPass?.text.toString().trim { it <= ' ' } -> {
+
+            inputPassword?.text.toString()
+                .trim { it <= ' ' } != inputRepeatPassword?.text.toString().trim { it <= ' ' } -> {
                 showErrorSnackBar(resources.getString(R.string.err_msg_password_mismatch), true)
                 false
             }
+
+            TextUtils.isEmpty(inputDOB?.text.toString().trim { it <= ' ' }) -> {
+                showErrorSnackBar(resources.getString(R.string.err_msg_enter_dob), true)
+                false
+            }
+
+            inputSex.selectedItemPosition == 0 -> {
+                showErrorSnackBar(resources.getString(R.string.err_msg_select_sex), true)
+                false
+            }
+
             else -> true
         }
     }
 
+
     private fun registerUser() {
         if (validateRegisterDetails()) {
-            val login: String = inputEmail?.text.toString().trim { it <= ' ' }
-            val password: String = inputPassword?.text.toString().trim { it <= ' ' }
-            val name: String = inputName?.text.toString().trim { it <= ' ' }
+            val userId: Int = (100000..999999).random()
+            val email: String = inputEmail?.text.toString().trim()
+            val firstName: String = inputFirstName?.text.toString().trim()
+            val lastName: String = inputLastName?.text.toString().trim()
+            val password: String = inputPassword?.text.toString().trim()
+            val dateOfBirth: Date = Date.valueOf(inputDOB.text.toString().trim())
+            val sex = inputSex.selectedItem.toString()
 
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(login, password)
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val firebaseUser: FirebaseUser = task.result!!.user!!
+                        task.result!!.user!!
 
-                        saveUserToDatabase(firebaseUser.uid, name, login)
+                        saveUserToDatabase(userId, firstName, lastName, dateOfBirth, sex)
 
                         showErrorSnackBar(
-                            "You are registered successfully. Your user id is ${firebaseUser.uid}",
+                            "You are registered successfully. Your user id is $userId.",
                             false
                         )
 
@@ -90,27 +140,36 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
-    private fun saveUserToDatabase(userId: String, name: String, email: String) {
-        val connection: Connection = DBconnection.getConnection()
+    private fun saveUserToDatabase(
+        userId: Int,
+        firstName: String,
+        lastName: String,
+        dateOfBirth: Date,
+        sex: String
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val connection = DBconnection.getConnection()
+            connection.use { conn ->
+                try {
+                    val connection = DBconnection.getConnection()
+                    val usersQueries = DBqueriesUsers(connection)
+                    val newUser = Users(userId, firstName, lastName, dateOfBirth, sex)
+                    val insertSuccessful = usersQueries.insertUser(newUser)
+                    connection.close()
 
-        try {
-            val insertStatement: PreparedStatement = connection.prepareStatement(
-                "INSERT INTO users (user_id, name, email) VALUES (?, ?, ?)"
-            )
-            insertStatement.setString(1, userId)
-            insertStatement.setString(2, name)
-            insertStatement.setString(3, email)
+                    if (insertSuccessful) {
+                        startActivity(
+                            Intent(this@RegisterActivity, MainActivity::class.java)
+                        )
+                        finish()
 
-            val rowsAffected: Int = insertStatement.executeUpdate()
-            if (rowsAffected > 0) {
-                println("Users data inserted successfully.")
-            } else {
-                println("Failed to insert user data.")
+                    } else {
+                        showErrorSnackBar("User registration failed", true)
+                    }
+                } catch (e: SQLException) {
+                    e.printStackTrace()
+                }
             }
-
-            connection.close()
-        } catch (e: SQLException) {
-            e.printStackTrace()
         }
     }
 
@@ -120,8 +179,23 @@ class RegisterActivity : BaseActivity() {
         finish()
     }
 
-    fun userRegistrationSuccess() {
-        Toast.makeText(this@RegisterActivity, resources.getString(R.string.register_success), Toast.LENGTH_LONG)
-            .show()
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            this,
+            { _, year, month, day ->
+                val selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, day)
+                inputDOB.setText(selectedDate)
+            },
+            year,
+            month,
+            day
+        )
+
+        datePickerDialog.show()
     }
 }

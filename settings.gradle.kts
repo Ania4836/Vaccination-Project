@@ -1,13 +1,10 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
+        maven {
+            url = uri("https://repo1.maven.org/maven2")
+        }
         gradlePluginPortal()
     }
 }
@@ -18,6 +15,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
 rootProject.name = "Vaccination-Project"
 include(":app")

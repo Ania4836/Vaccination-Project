@@ -6,4 +6,9 @@
     <string name="err_msg_enter_reppassword">please confirm passwords</string>
     <string name="err_msg_password_mismatch">passwords dont match\n</string>
     <string name="register_success">Registered succesflully</string>
+    <string name="err_msg_enter_first_name">Please enter your name</string>
+    <string name="err_msg_enter_last_name">Please enter your surname</string>
+    <string name="err_msg_enter_repeat_password">Confirm your password</string>
+    <string name="err_msg_enter_dob">please enter your date of birth</string>
+    <string name="err_msg_select_sex">Please choose your gender\n</string>
 </resources>

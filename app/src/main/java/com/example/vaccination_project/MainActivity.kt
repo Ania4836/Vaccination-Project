@@ -81,10 +81,12 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     private fun goToMenuActivity() {
         val user = FirebaseAuth.getInstance().currentUser
-        val uid = user?.email.toString()
+        val mail = user?.email.toString()
 
         val intent = Intent(this, MenuActivity::class.java)
-        intent.putExtra("uID", uid)
+        intent.putExtra("Email", mail)
         startActivity(intent)
     }
 }
+
+
