@@ -11,7 +11,6 @@ import com.example.vaccination_project.db_connection.vaccination.Vaccination
 import java.sql.Date
 import java.sql.Time
 
-
 fun main() {
     try {
         val connection = DBconnection.getConnection()

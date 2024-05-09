@@ -6,7 +6,7 @@ import java.sql.Time
 class ScheduleDate(
     val id: Int? = null,
     val vaccineId: Int,
-    val userId: String,
+    val userId: Int,
     val doctorId: Int,
     val scheduledTime: Time,
     val status: String? = null,

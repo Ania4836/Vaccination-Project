@@ -6,6 +6,7 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 object TestFreeSQLServer {
+
     @JvmStatic
     fun main(args: Array<String>) {
         try {
