@@ -40,6 +40,7 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
 
         return callableStatement.executeUpdate() > 0
     }
+
     override fun deleteUser(userId: String): Boolean {
         val query = "{CALL deleteUser(?)}"
         val callableStatement = connection.prepareCall(query)
@@ -62,10 +63,10 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
 
     private fun mapResultSetToUser(resultSet: ResultSet): Users? {
         return Users(
-            userId = resultSet.getInt("user_id"),
-            firstName = resultSet.getString("first_name"),
-            lastName = resultSet.getString("last_name"),
-            dateOfBirth = resultSet.getDate("date_of_birth"),
+            userId = resultSet.getInt("userId"),
+            firstName = resultSet.getString("firstName"),
+            lastName = resultSet.getString("lastName"),
+            dateOfBirth = resultSet.getDate("dateOfBirth"),
             sex = resultSet.getString("sex"),
         )
     }

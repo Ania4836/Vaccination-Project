@@ -4,6 +4,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 class DBqueriesVaccination(private val connection : Connection) : VaccinationDAO {
+
     override fun getVaccinationById(id: Int): Vaccination? {
         val query = "{CALL getVaccineById(?)}"
         val callableStatement = connection.prepareCall(query)
