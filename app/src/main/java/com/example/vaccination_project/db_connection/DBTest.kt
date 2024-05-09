@@ -26,7 +26,6 @@ fun main() {
         println("Testing getAllUsers():")
         println(userQuery.getAllUsers())
 
-
         println("Testing insertVaccination():")
         val newVaccination = Vaccination(1, "Pfizer", Date.valueOf("2020-02-05"), Date.valueOf("2021-11-15"),Date.valueOf("2023-08-15"))
         println("Insertion successful: ${vaccinationQuery.insertVaccination(newVaccination)}")
@@ -40,7 +39,6 @@ fun main() {
 
         println("Testing getAllScheduleDates():")
         println(scheduleQuery.getAllScheduleDates())
-
 
         println("Testing insertDoctors():")
         val newDoctor = Doctors(1, "Jan", "Kowalski")
