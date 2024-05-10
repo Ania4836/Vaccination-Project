@@ -15,6 +15,7 @@ import java.sql.Connection
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
+import com.google.firebase.auth.FirebaseAuth
 
 class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -93,7 +94,7 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
             Toast.makeText(this, "Please select both date and time for the schedule.", Toast.LENGTH_LONG).show()
         } else {
             // Call to insert data only if both date and time have been selected
-            insertDateIntoDatabase(vaccineId = 101, userId = 501, status = "Scheduled", dose = 1, intervalBetweenDoses = 30)
+            insertDateIntoDatabase(vaccineId = 101, status = "Ongoing", dose = 1, intervalBetweenDoses = 30)
         }
     }
 
@@ -108,26 +109,33 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
         tvNextDoseDate.text = "Next Dose: $nextDoseDate"
     }
 
-    private fun insertDateIntoDatabase(vaccineId: Int?, userId: Int?, status: String?, dose: Int?, intervalBetweenDoses: Int?) {
+    private fun insertDateIntoDatabase(vaccineId: Int?, status: String?, dose: Int?, intervalBetweenDoses: Int?) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val conn: Connection = DBconnection.getConnection()
                 val randomId = Random.nextInt(1000000)
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                // Ensure the formattedDateTime includes the properly selected time
-                val formattedDateTime =
-                    dateFormat.format(Date(selectedDateInMillis)) + " " + selectedTime
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val formattedDate = dateFormat.format(Date(selectedDateInMillis))
+                val formattedDateTime = "$formattedDate $selectedTime"
+
                 val sql =
                     "INSERT INTO Schedule_table (id, scheduledDate, vaccineId, userId, status, dose, intervalBetweenDoses, scheduledTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 val statement = conn.prepareStatement(sql)
                 statement.setInt(1, randomId)
                 statement.setString(2, formattedDateTime)
                 statement.setObject(3, vaccineId)
-                statement.setObject(4, userId)
+                statement.setString(4, userId)
                 statement.setString(5, status)
                 statement.setObject(6, dose)
                 statement.setObject(7, intervalBetweenDoses)
-                statement.setString(8, selectedTime) // Make sure to add this line to pass the time
+                statement.setString(8, selectedTime)
                 val result = statement.executeUpdate()
                 withContext(Dispatchers.Main) {
                     if (result > 0) {
@@ -157,7 +165,6 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
-
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         lifecycleScope.launch {
             Toast.makeText(applicationContext, "Error: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
