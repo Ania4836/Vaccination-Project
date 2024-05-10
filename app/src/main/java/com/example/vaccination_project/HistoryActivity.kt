@@ -1,9 +1,11 @@
 package com.example.vaccination_project
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.vaccination_project.UpdateScheduleActivity
 import com.example.vaccination_project.db_connection.DBconnection
 import com.example.vaccination_project.db_connection.schedule_date.ScheduleDate
 import com.google.firebase.auth.FirebaseAuth
@@ -23,6 +25,12 @@ class HistoryActivity : AppCompatActivity() {
         scheduleListView = findViewById(R.id.scheduleListView)
 
         fetchAndDisplaySchedules()
+
+        // Set click listener for list view items
+        scheduleListView.setOnItemClickListener { parent, view, position, id ->
+            val selectedItem = parent.getItemAtPosition(position) as ScheduleDate
+            updateSchedule(selectedItem)
+        }
     }
 
     private fun fetchAndDisplaySchedules() {
@@ -38,26 +46,8 @@ class HistoryActivity : AppCompatActivity() {
 
                     val scheduleList = mutableListOf<ScheduleDate>()
                     while (resultSet.next()) {
-                        val id = resultSet.getInt("id")
-                        val vaccineId = resultSet.getInt("vaccineId")
-                        val doctorId = resultSet.getInt("doctorId")
-                        val scheduledTime = resultSet.getTime("scheduledTime")
-                        val status = resultSet.getString("status")
-                        val scheduledDate = resultSet.getDate("scheduledDate")
-                        val dose = resultSet.getInt("dose")
-                        val intervalBetweenDoses = resultSet.getInt("intervalBetweenDoses")
-
-                        val scheduleItem = ScheduleDate(
-                            id,
-                            vaccineId,
-                            userId,
-                            doctorId,
-                            scheduledTime,
-                            status,
-                            scheduledDate,
-                            dose,
-                            intervalBetweenDoses
-                        )
+                        // Parse schedule data from ResultSet and add to scheduleList
+                        val scheduleItem = parseScheduleItem(resultSet)
                         scheduleList.add(scheduleItem)
                     }
 
@@ -75,6 +65,29 @@ class HistoryActivity : AppCompatActivity() {
         } else {
             showToast("User not logged in")
         }
+    }
+
+    private fun parseScheduleItem(resultSet: ResultSet): ScheduleDate {
+        // Parse ResultSet and create a ScheduleDate object
+        return ScheduleDate(
+            resultSet.getInt("id"),
+            resultSet.getInt("vaccineId"),
+            resultSet.getString("userId"),
+            resultSet.getInt("doctorId"),
+            resultSet.getTime("scheduledTime"),
+            resultSet.getString("status"),
+            resultSet.getDate("scheduledDate"),
+            resultSet.getInt("dose"),
+            resultSet.getInt("intervalBetweenDoses")
+        )
+    }
+
+    private fun updateSchedule(selectedItem: ScheduleDate) {
+        // You can implement the logic to update the schedule here
+        // For example, you can start an activity to edit the schedule details
+        val intent = Intent(this, UpdateScheduleActivity::class.java)
+        intent.putExtra("scheduleId", selectedItem.id)
+        startActivity(intent)
     }
 
     private fun showToast(message: String) {

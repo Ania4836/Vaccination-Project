@@ -39,8 +39,8 @@
             android:label="ScheduleActivity">
         </activity>
         <activity
-            android:name=".CustomCalendarActivity"
-            android:label="CustomCalendarActivity">
+            android:name=".UpdateScheduleActivity"
+            android:label="UpdateScheduleActivity">
         </activity>
         <activity
             android:name=".AddVaccinationRecordActivity"
