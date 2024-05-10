@@ -50,6 +50,14 @@
             android:name=".HistoryActivity"
             android:label="HistoryActivity">
         </activity>
+        <activity
+            android:name=".AddVaccinationRecordActivity"
+            android:label="AddVaccinationRecordActivity">
+        </activity>
+        <activity
+            android:name=".HistoryActivity"
+            android:label="HistoryActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -19,6 +19,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
 
+/**
+ * An activity that facilitates the addition of vaccination records into the database. This includes scheduling details such as the vaccine ID,
+ * the date the vaccine was administered, the dose, and the status of the vaccination. The activity provides a user interface for inputting these details,
+ * validates them, and submits them to the database if they are correct.
+ *
+ * Inherits from [AppCompatActivity] and provides methods to interact with UI components like EditTexts for input, a Spinner for status selection,
+ * and a Button to submit the data.
+ */
 class AddVaccinationRecordActivity : AppCompatActivity() {
 
     private lateinit var vaccineIdEditText: EditText
@@ -27,6 +35,14 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
     private lateinit var doseEditText: EditText
     private lateinit var submitButton: Button
 
+    /**
+     * Initializes the activity, sets up the content view and binds the UI components. It also initializes a DatePickerDialog
+     * for the date input and sets an ArrayAdapter for the status spinner.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the most recent data supplied in onSaveInstanceState(Bundle).
+     *                           Otherwise, it is null.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_vaccination_record)
@@ -52,6 +68,10 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Displays a DatePicker dialog allowing users to select a date for the vaccination record. The selected date
+     * is then displayed in the dateScheduledEditText.
+     */
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -72,6 +92,10 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
+    /**
+     * Gathers the data from input fields, validates them, and submits the record to the database.
+     * Displays a Toast message based on the success of the operation.
+     */
     private fun addVaccinationRecord() {
         val vaccineId = vaccineIdEditText.text.toString().toIntOrNull() ?: 0
         val dateScheduledStr = dateScheduledEditText.text.toString()
@@ -124,24 +148,40 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Generates a unique integer ID using a combination of the current timestamp and a random number.
+     *
+     * @return An integer representing a unique identifier.
+     */
     private fun generateUniqueId(): Int {
         // Generating a unique ID using timestamp and random number
         return System.currentTimeMillis().toInt() + Random.nextInt(1000)
     }
 
+    /**
+     * Utility method to display Toast messages on the UI thread.
+     *
+     * @param message The message to display in the Toast.
+     */
     private fun showToast(message: String) {
         runOnUiThread {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 
-
+    /**
+     * Retrieves the Firebase user ID of the currently authenticated user.
+     *
+     * @return The Firebase user ID as a string, or null if no user is authenticated.
+     */
     private fun getUserId(): String? {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         return userId
     }
 
+    /**
+     * Clears all input fields after successful data submission or when resetting the form.
+     */
     private fun clearFields() {
         vaccineIdEditText.text.clear()
         dateScheduledEditText.text.clear()

@@ -22,6 +22,13 @@ import java.sql.SQLException
 import java.util.Calendar
 import java.util.Locale
 
+/**
+ * An activity that handles the registration of new users by collecting user details and registering them using Firebase Authentication.
+ * Upon successful registration, user details are stored in a custom SQL database. The activity provides fields for entering user information
+ * such as email, name, password, date of birth, and sex. It also handles input validation and displays appropriate error or success messages.
+ *
+ * Inherits from [BaseActivity] to utilize common UI functionalities like showing error or success notifications via Snackbar.
+ */
 class RegisterActivity : BaseActivity() {
 
     private var inputEmail: EditText? = null
@@ -33,6 +40,13 @@ class RegisterActivity : BaseActivity() {
     private lateinit var inputSex: Spinner
     private lateinit var registerButton: Button
 
+    /**
+     * Sets up the activity layout and initializes UI components on activity creation.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the most recent data supplied in onSaveInstanceState(Bundle).
+     *                           Otherwise, it is null.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -62,6 +76,11 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Validates user input before registration.
+     *
+     * @return Boolean indicating whether the input is valid.
+     */
     private fun validateRegisterDetails(): Boolean {
         return when {
             TextUtils.isEmpty(inputEmail?.text.toString().trim { it <= ' ' }) -> {
@@ -109,6 +128,9 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Handles the user registration process using Firebase Authentication and stores additional details in a database.
+     */
    private fun registerUser() {
        if (validateRegisterDetails()) {
            val email: String = inputEmail?.text.toString().trim()
@@ -138,6 +160,15 @@ class RegisterActivity : BaseActivity() {
 
    }
 
+    /**
+     * Saves user data to the custom database after successful authentication.
+     *
+     * @param userId Unique identifier for the user.
+     * @param firstName User's first name.
+     * @param lastName User's last name.
+     * @param dateOfBirth User's date of birth.
+     * @param sex User's sex.
+     */
     private fun saveUserToDatabase(
         userId: String,
         firstName: String,
