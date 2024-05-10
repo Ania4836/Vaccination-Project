@@ -9,6 +9,14 @@ import com.example.vaccination_project.db_connection.DBconnection
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Activity for adding a new vaccination record to the database. Provides user interface components
+ * for entering the vaccine name, the date the vaccine was administered, and the due date for the next dose.
+ * This activity handles form submission and inserts the vaccination data into a database.
+ *
+ * The activity ensures that all input fields are filled before allowing the record to be added
+ * and provides feedback on the success or failure of the operation.
+ */
 class AddVaccinationRecordActivity : AppCompatActivity() {
 
     private lateinit var vaccineNameEditText: EditText
@@ -16,6 +24,14 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
     private lateinit var nextDoseDueDateEditText: EditText
     private lateinit var submitButton: Button
 
+    /**
+     * Initializes the activity, sets the content view, and binds UI components.
+     * It also sets up a click listener on the submit button to trigger the process of adding a vaccination record.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this contains the most recent data supplied by onSaveInstanceState(Bundle).
+     *                           Otherwise, it is null.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_vaccination_record)
@@ -30,6 +46,11 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Handles the form submission by extracting data from input fields, validating them,
+     * and attempting to add a new vaccination record into the database.
+     * Displays toast messages to indicate success or failure.
+     */
     private fun addVaccinationRecord() {
         val vaccineName = vaccineNameEditText.text.toString()
         val dateAdministeredStr = dateAdministeredEditText.text.toString()
@@ -71,11 +92,20 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Retrieves the current user's ID. This function assumes the user is already registered and has a valid ID.
+     *
+     * @return The user ID.
+     */
     private fun getUserId(): Int {
     //get id!!!!!!! do it after register id in databasee
         return 1
     }
 
+    /**
+     * Clears all input fields in the form after successfully adding a vaccination record or when preparing
+     * the form for new input.
+     */
     private fun clearFields() {
         vaccineNameEditText.text.clear()
         dateAdministeredEditText.text.clear()

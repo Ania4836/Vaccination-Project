@@ -11,6 +11,19 @@ import com.example.vaccination_project.db_connection.vaccination.Vaccination
 import java.sql.Date
 import java.sql.Time
 
+
+/**
+ * Demonstrates various database operations using the application's data access objects (DAOs).
+ * This script initializes connections to the database and performs a series of CRUD operations
+ * on different datasets, including users, vaccinations, doctors, and schedules.
+ *
+ * The process includes:
+ * - Establishing a connection to the database.
+ * - Creating instances of DAOs for users, vaccinations, doctors, and schedules.
+ * - Performing insert, update, delete, and fetch operations on each dataset.
+ * - Printing the results of these operations to standard output.
+ * - Handling any exceptions that may occur during the operations.
+ */
 fun main() {
     try {
         val connection = DBconnection.getConnection()
@@ -27,7 +40,7 @@ fun main() {
         println(userQuery.getAllUsers())
 
         println("Testing insertVaccination():")
-        val newVaccination = Vaccination(1, "Pfizer", Date.valueOf("2020-02-05"), Date.valueOf("2021-11-15"),Date.valueOf("2023-08-15"))
+        val newVaccination = Vaccination(1, "Pfizer", Date.valueOf("2020-02-05"), Date.valueOf("2021-11-15"))
         println("Insertion successful: ${vaccinationQuery.insertVaccination(newVaccination)}")
 
         println("Testing getAllVaccines():")

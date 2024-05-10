@@ -25,7 +25,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Next Dose: "
+        android:layout_below="@id/tvSelectedTime"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnSelectTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Vaccination Time"
         android:layout_below="@id/tvSelectedDate"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvSelectedTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Selected Time: "
+        android:layout_below="@id/btnSelectTime"
         android:layout_marginBottom="16dp"/>
 
     <CalendarView

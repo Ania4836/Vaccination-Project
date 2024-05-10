@@ -21,6 +21,13 @@ import java.sql.SQLException
 import java.util.Calendar
 import java.util.Locale
 
+/**
+ * An activity that handles user registration. It provides form inputs for user details including name, email,
+ * password, date of birth, and gender. The activity validates the input fields, communicates with Firebase to
+ * create a new user, and stores additional user information in a custom database.
+ *
+ * Inherits common functionality from [BaseActivity], such as displaying error or success notifications via Snackbar.
+ */
 class RegisterActivity : BaseActivity() {
 
     private var inputEmail: EditText? = null
@@ -32,6 +39,13 @@ class RegisterActivity : BaseActivity() {
     private lateinit var inputSex: Spinner
     private lateinit var registerButton: Button
 
+    /**
+     * Sets up the activity layout and initializes UI components. It binds click listeners to the appropriate views
+     * and configures an ArrayAdapter for the gender spinner.
+     *
+     * @param savedInstanceState A Bundle object containing the activity's previously saved state. It is null the first time
+     * an activity is created.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -61,6 +75,12 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Validates the form details entered by the user. Checks if any fields are empty and if the passwords entered match.
+     * Displays error notifications if validations fail.
+     *
+     * @return Boolean indicating whether the form details are valid.
+     */
     private fun validateRegisterDetails(): Boolean {
         return when {
             TextUtils.isEmpty(inputEmail?.text.toString().trim { it <= ' ' }) -> {
@@ -108,7 +128,10 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
-
+    /**
+     * Registers the user in Firebase, handles user authentication, and stores user details in a custom database.
+     * Displays a success message upon successful registration or an error message if registration fails.
+     */
     private fun registerUser() {
         if (validateRegisterDetails()) {
             val userId: Int = (100000..999999).random()
@@ -140,6 +163,15 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Stores additional user information in the database after successful Firebase authentication.
+     *
+     * @param userId The unique identifier for the user.
+     * @param firstName The user's first name.
+     * @param lastName The user's last name.
+     * @param dateOfBirth The user's date of birth.
+     * @param sex The user's gender.
+     */
     private fun saveUserToDatabase(
         userId: Int,
         firstName: String,
@@ -179,6 +211,9 @@ class RegisterActivity : BaseActivity() {
         finish()
     }
 
+    /**
+     * Displays a DatePicker dialog to select the date of birth. Updates the DOB EditText with the chosen date.
+     */
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -195,7 +230,6 @@ class RegisterActivity : BaseActivity() {
             month,
             day
         )
-
         datePickerDialog.show()
     }
 }

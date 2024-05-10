@@ -3,8 +3,20 @@ package com.example.vaccination_project.db_connection.user
 import java.sql.Connection
 import java.sql.ResultSet
 
+/**
+ * Provides database operations related to user management, interfacing with stored procedures to perform CRUD operations.
+ * This class enables actions such as retrieving, updating, deleting, and inserting user records into the database.
+ *
+ * @property connection An active database connection used for all SQL operations, which should be managed externally.
+ */
 class DBqueriesUsers(private val connection: Connection) : UsersDAO {
 
+    /**
+     * Retrieves a user by their unique identifier.
+     *
+     * @param userId The unique identifier of the user.
+     * @return A [Users] object representing the user if found, or null if no such user exists.
+     */
         override fun getUserid(userId: String): Users? {
         val query = "{CALL getUser(?) }"
         val callableStatement = connection.prepareCall(query)
@@ -18,6 +30,11 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
         }
     }
 
+    /**
+     * Retrieves all users stored in the database.
+     *
+     * @return A set of [Users] objects, potentially empty if no users are found.
+     */
     override fun getAllUsers(): Set<Users?>? {
         val query = "{CALL getUsers()}"
         val callableStatement = connection.prepareCall(query)
@@ -29,6 +46,13 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
         return if (users.isEmpty()) null else users
     }
 
+    /**
+     * Updates a specific user's details in the database.
+     *
+     * @param userId The unique identifier of the user to be updated.
+     * @param users A [Users] object containing the updated details to store.
+     * @return True if the update was successful, false otherwise.
+     */
     override fun updateUser(userId: String, users: Users): Boolean {
         val query = "{CALL updateUser(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)
@@ -41,6 +65,12 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
         return callableStatement.executeUpdate() > 0
     }
 
+    /**
+     * Deletes a user from the database using their unique identifier.
+     *
+     * @param userId The unique identifier of the user to be deleted.
+     * @return True if the deletion was successful, false otherwise.
+     */
     override fun deleteUser(userId: String): Boolean {
         val query = "{CALL deleteUser(?)}"
         val callableStatement = connection.prepareCall(query)
@@ -48,6 +78,12 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
         return callableStatement.executeUpdate() > 0
     }
 
+    /**
+     * Inserts a new user into the database.
+     *
+     * @param user A [Users] object containing the details of the new user.
+     * @return True if the insertion was successful, false otherwise.
+     */
     override fun insertUser(user: Users): Boolean {
         val call = "{CALL insertUser(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
@@ -61,6 +97,12 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
         return result
     }
 
+    /**
+     * Maps a [ResultSet] from a SQL query to a [Users] object.
+     *
+     * @param resultSet The [ResultSet] containing the SQL query results.
+     * @return A [Users] object populated with data from the [ResultSet].
+     */
     private fun mapResultSetToUser(resultSet: ResultSet): Users? {
         return Users(
             userId = resultSet.getInt("userId"),

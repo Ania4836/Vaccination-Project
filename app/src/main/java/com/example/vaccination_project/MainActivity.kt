@@ -9,6 +9,14 @@ import android.widget.EditText
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 
+/**
+ * The main activity of the application, serving as the login screen. It allows users to enter their email
+ * and password to log in to the application. If users are not registered, they can navigate to the registration screen.
+ * This activity extends [BaseActivity] to inherit common UI functionality such as displaying error or success notifications
+ * using Snackbar.
+ *
+ * Implements [View.OnClickListener] to handle click events on the login and register UI components.
+ */
 class MainActivity : BaseActivity(), View.OnClickListener {
 
     private var inputEmail: EditText? = null
@@ -16,6 +24,14 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private var loginButton: Button? = null
     private var registerTextView: TextView? = null
 
+    /**
+     * Initializes the activity with the necessary UI components and sets up click listeners for the login
+     * and registration interactions.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the most recent data supplied in onSaveInstanceState(Bundle).
+     *                           Otherwise, it is null.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -31,6 +47,12 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         registerTextView?.setOnClickListener(this)
     }
 
+    /**
+     * Handles click events on the UI components, specifically to navigate to the RegisterActivity when
+     * the register option is clicked.
+     *
+     * @param view The view that was clicked.
+     */
     override fun onClick(view: View?) {
         if (view != null) {
             when (view.id) {
@@ -42,6 +64,12 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    /**
+     * Validates the email and password input by the user. Displays a snackbar message if any field is empty
+     * or if the details are validated successfully.
+     *
+     * @return A Boolean value indicating whether the login details are valid.
+     */
     private fun validateLoginDetails(): Boolean {
         return when {
             TextUtils.isEmpty(inputEmail?.text.toString().trim { it <= ' ' }) -> {
@@ -61,6 +89,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    /**
+     * Attempts to log in the user using the provided email and password. If the login is successful, navigates
+     * to the MenuActivity; otherwise, displays an error message.
+     */
     private fun logInRegisteredUser() {
         if (validateLoginDetails()) {
             val email = inputEmail?.text.toString().trim { it <= ' ' }
@@ -79,6 +111,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    /**
+     * Navigates to the MenuActivity and passes the logged-in user's email as an extra in the intent.
+     */
     private fun goToMenuActivity() {
         val user = FirebaseAuth.getInstance().currentUser
         val mail = user?.email.toString()

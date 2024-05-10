@@ -5,8 +5,24 @@ import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
 
+/**
+ * Provides a demonstration of various database operations using JDBC to connect to a MySQL server.
+ * This object includes functions to perform CRUD operations (Create, Read, Update, Delete) on a vaccination schedule database,
+ * as well as utility functions to manipulate and query the database schema. The main method orchestrates multiple database
+ * operations to show practical usage of JDBC in handling real-world scenarios.
+ *
+ * The operations include:
+ * - Establishing a connection to a predefined MySQL database.
+ * - Adding, updating, deleting, and retrieving vaccination records.
+ * - Checking for the existence of and adding new columns to tables.
+ * - Displaying the database tables and their content.
+ */
 object TestFreeSQLServer {
 
+    /**
+     * Main entry point of the demonstration. Initializes the database connection, and executes a series of database operations.
+     * Each operation is printed to the console, allowing for a step-by-step observation of outcomes.
+     */
     @JvmStatic
     fun main(args: Array<String>) {
         try {
@@ -48,6 +64,8 @@ object TestFreeSQLServer {
             e.printStackTrace()
         }
     }
+
+
     private fun addNewVaccinationRecord(
         conn: Connection,
         patientName: String,
@@ -74,6 +92,7 @@ object TestFreeSQLServer {
             e.printStackTrace()
         }
     }
+
 
     private fun deleteVaccinationRecord(conn: Connection, patientName: String) {
         try {
