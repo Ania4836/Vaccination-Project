@@ -24,7 +24,7 @@ import java.sql.Time
  * - Printing the results of these operations to standard output.
  * - Handling any exceptions that may occur during the operations.
  */
-fun main() {
+suspend fun main() {
     try {
         val connection = DBconnection.getConnection()
         val scheduleQuery = DBqueriesScheduleDate(connection)

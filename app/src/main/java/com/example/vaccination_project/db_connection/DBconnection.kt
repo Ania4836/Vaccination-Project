@@ -1,5 +1,7 @@
 package com.example.vaccination_project.db_connection
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -29,11 +31,14 @@ object DBconnection {
      * @return A [Connection] object to interact with the database.
      * @throws RuntimeException If there is an error establishing the connection, encapsulating the original [SQLException].
      */
-    fun getConnection(): Connection {
-        try {
-            return DriverManager.getConnection(URL, USER, PASS)
-        } catch (ex: SQLException) {
-            throw RuntimeException("Error connecting to the database", ex)
+    suspend fun getConnection(): Connection {
+        return withContext(Dispatchers.IO) {
+            try {
+                Class.forName("com.mysql.jdbc.Driver")
+                DriverManager.getConnection(URL, USER, PASS)
+            } catch (e: Exception) {
+                throw RuntimeException("Error connecting to the database", e)
+            }
         }
     }
 
@@ -43,7 +48,7 @@ object DBconnection {
      * @param args Not used.
      */
     @JvmStatic
-    fun main(args: Array<String>) {
+    suspend fun main(args: Array<String>) {
         try {
             val conn = getConnection()
             conn.close()

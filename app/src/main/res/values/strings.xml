@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">Vaccination-Project</string>
     <string name="err_msg_enter_email">wrong email</string>
     <string name="err_msg_enter_password">wrong password\n</string>
