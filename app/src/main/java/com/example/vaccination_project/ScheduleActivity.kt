@@ -162,3 +162,4 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
         exception.printStackTrace()
     }
 }
+
