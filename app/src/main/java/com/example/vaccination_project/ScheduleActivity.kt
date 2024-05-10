@@ -16,16 +16,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.random.Random
 
-/**
- * An activity that facilitates scheduling of vaccination appointments. It provides interfaces to select dates and times,
- * and handles the submission of these details along with associated vaccination and user information into a database.
- *
- * This activity extends [AppCompatActivity] and implements [View.OnClickListener] for handling click events on UI elements.
- */
 class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var btnSelectDate: Button
     private lateinit var btnSelectTime: Button
+    private lateinit var btnConfirmSchedule: Button // Button to confirm the schedule
     private lateinit var tvSelectedDate: TextView
     private lateinit var tvSelectedTime: TextView
     private lateinit var tvNextDoseDate: TextView
@@ -34,20 +29,13 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
     private var selectedDateInMillis: Long = 0
     private var selectedTime = "09:00"
 
-    /**
-     * Initializes the activity, sets the content view, and configures UI components. It sets click listeners
-     * on the date and time selection buttons and handles the logic for displaying and hiding the calendar view.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
-     *                           this Bundle contains the most recent data supplied in onSaveInstanceState(Bundle).
-     *                           Otherwise, it is null.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_schedule)
 
         btnSelectDate = findViewById(R.id.btnSelectDate)
         btnSelectTime = findViewById(R.id.btnSelectTime)
+        btnConfirmSchedule = findViewById(R.id.btnConfirmSchedule)
         tvSelectedDate = findViewById(R.id.tvSelectedDate)
         tvSelectedTime = findViewById(R.id.tvSelectedTime)
         tvNextDoseDate = findViewById(R.id.tvNextDoseDate)
@@ -57,6 +45,7 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
 
         btnSelectDate.setOnClickListener(this)
         btnSelectTime.setOnClickListener(this)
+        btnConfirmSchedule.setOnClickListener(this) // Set onClick listener for the confirm button
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val selectedDate = Calendar.getInstance()
@@ -68,12 +57,6 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    /**
-     * Manages click events for the UI elements. Depending on which element is clicked, a date picker dialog or
-     * a time picker dialog is shown.
-     *
-     * @param view The view that was clicked.
-     */
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.btnSelectDate -> {
@@ -86,19 +69,32 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
             R.id.btnSelectTime -> {
                 showTimePickerDialog()
             }
+            R.id.btnConfirmSchedule -> {
+                confirmSchedule()
+            }
         }
     }
 
     private fun showTimePickerDialog() {
         val calendar = Calendar.getInstance()
-        val defaultHour = selectedTime.split(":")[0].toInt()  // Extract hour from default time
-        val defaultMinute = selectedTime.split(":")[1].toInt()  // Extract minute from default time
+        // Default time initialization to current time if not previously selected
+        val defaultHour = if (selectedTime == "09:00") calendar.get(Calendar.HOUR_OF_DAY) else selectedTime.split(":")[0].toInt()
+        val defaultMinute = if (selectedTime == "09:00") calendar.get(Calendar.MINUTE) else selectedTime.split(":")[1].toInt()
 
-        TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, selectedHour, selectedMinute ->
-            selectedTime = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute)
+        TimePickerDialog(this, { _, hour, minute ->
+            selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
             tvSelectedTime.text = "Selected Time: $selectedTime"
-            insertDateIntoDatabase(vaccineId = 101, userId = 501, status = "Scheduled", dose = 1, intervalBetweenDoses = 30)
         }, defaultHour, defaultMinute, true).show()
+    }
+
+
+    private fun confirmSchedule() {
+        if (selectedDateInMillis == 0L || selectedTime == "09:00") {
+            Toast.makeText(this, "Please select both date and time for the schedule.", Toast.LENGTH_LONG).show()
+        } else {
+            // Call to insert data only if both date and time have been selected
+            insertDateIntoDatabase(vaccineId = 101, userId = 501, status = "Scheduled", dose = 1, intervalBetweenDoses = 30)
+        }
     }
 
 
@@ -113,13 +109,16 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun insertDateIntoDatabase(vaccineId: Int?, userId: Int?, status: String?, dose: Int?, intervalBetweenDoses: Int?) {
-        lifecycleScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val conn: Connection = DBconnection.getConnection()
                 val randomId = Random.nextInt(1000000)
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                val formattedDateTime = dateFormat.format(Date(selectedDateInMillis)) + " " + selectedTime
-                val sql = "INSERT INTO Schedule_table (id, scheduledDate, vaccineId, userId, status, dose, intervalBetweenDoses) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                // Ensure the formattedDateTime includes the properly selected time
+                val formattedDateTime =
+                    dateFormat.format(Date(selectedDateInMillis)) + " " + selectedTime
+                val sql =
+                    "INSERT INTO Schedule_table (id, scheduledDate, vaccineId, userId, status, dose, intervalBetweenDoses, scheduledTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 val statement = conn.prepareStatement(sql)
                 statement.setInt(1, randomId)
                 statement.setString(2, formattedDateTime)
@@ -128,33 +127,37 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
                 statement.setString(5, status)
                 statement.setObject(6, dose)
                 statement.setObject(7, intervalBetweenDoses)
+                statement.setString(8, selectedTime) // Make sure to add this line to pass the time
                 val result = statement.executeUpdate()
                 withContext(Dispatchers.Main) {
                     if (result > 0) {
-                        Toast.makeText(applicationContext, "Data saved successfully with ID: $randomId", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Data saved successfully with ID: $randomId",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
-                        Toast.makeText(applicationContext, "Failed to save the data.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Failed to save the data.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
                 conn.close()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(applicationContext, "Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Error: ${e.localizedMessage}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
                 e.printStackTrace()
             }
         }
     }
 
-    /**
-     * Inserts a scheduled date into the database based on user input and selected date and time.
-     *
-     * @param vaccineId Optional ID of the vaccine.
-     * @param userId Optional ID of the user.
-     * @param status Optional status of the vaccination.
-     * @param dose Optional dose number of the vaccination.
-     * @param intervalBetweenDoses Optional interval between doses.
-     */
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         lifecycleScope.launch {
             Toast.makeText(applicationContext, "Error: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
@@ -162,4 +165,3 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
         exception.printStackTrace()
     }
 }
-
