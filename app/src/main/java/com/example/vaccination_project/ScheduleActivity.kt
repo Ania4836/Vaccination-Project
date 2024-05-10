@@ -3,10 +3,7 @@ package com.example.vaccination_project
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.CalendarView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.vaccination_project.db_connection.DBconnection
@@ -21,11 +18,12 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var btnSelectDate: Button
     private lateinit var btnSelectTime: Button
-    private lateinit var btnConfirmSchedule: Button // Button to confirm the schedule
+    private lateinit var btnConfirmSchedule: Button
     private lateinit var tvSelectedDate: TextView
     private lateinit var tvSelectedTime: TextView
     private lateinit var tvNextDoseDate: TextView
     private lateinit var calendarView: CalendarView
+    private lateinit var etDose: EditText
 
     private var selectedDateInMillis: Long = 0
     private var selectedTime = "09:00"
@@ -41,12 +39,13 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
         tvSelectedTime = findViewById(R.id.tvSelectedTime)
         tvNextDoseDate = findViewById(R.id.tvNextDoseDate)
         calendarView = findViewById(R.id.calendarView)
+        etDose = findViewById(R.id.etDose)
 
         tvSelectedTime.text = "Selected Time: $selectedTime"
 
         btnSelectDate.setOnClickListener(this)
         btnSelectTime.setOnClickListener(this)
-        btnConfirmSchedule.setOnClickListener(this) // Set onClick listener for the confirm button
+        btnConfirmSchedule.setOnClickListener(this)
 
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val selectedDate = Calendar.getInstance()
@@ -88,16 +87,19 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
         }, defaultHour, defaultMinute, true).show()
     }
 
-
     private fun confirmSchedule() {
         if (selectedDateInMillis == 0L || selectedTime == "09:00") {
             Toast.makeText(this, "Please select both date and time for the schedule.", Toast.LENGTH_LONG).show()
         } else {
-            // Call to insert data only if both date and time have been selected
-            insertDateIntoDatabase(vaccineId = 101, status = "Ongoing", dose = 1, intervalBetweenDoses = 30)
+            val dose = etDose.text.toString().toIntOrNull()
+            if (dose == null) {
+                Toast.makeText(this, "Please enter a valid dose.", Toast.LENGTH_SHORT).show()
+            } else {
+                // Call to insert data only if both date and time have been selected
+                insertDateIntoDatabase(vaccineId = 101, status = "Ongoing", dose = dose, intervalBetweenDoses = 30)
+            }
         }
     }
-
 
     private fun displayNextDoseDate() {
         val interval = 30
@@ -165,6 +167,7 @@ class ScheduleActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         lifecycleScope.launch {
             Toast.makeText(applicationContext, "Error: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
