@@ -6,25 +6,32 @@
     android:padding="16dp">
 
     <EditText
-        android:id="@+id/vaccineNameEditText"
+        android:id="@+id/vaccineIdEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Vaccine Name"
-        android:inputType="text" />
+        android:hint="Vaccine ID"
+        android:inputType="number" />
 
     <EditText
         android:id="@+id/dateAdministeredEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Date Administered (yyyy-MM-dd)"
+        android:hint="Scheduled date (yyyy-MM-dd)"
         android:inputType="date" />
 
+    <Spinner
+        android:id="@+id/inputStatus"
+        android:layout_width="305dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        />
+
     <EditText
-        android:id="@+id/nextDoseDueDateEditText"
+        android:id="@+id/doseEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Next Dose Due Date (yyyy-MM-dd)"
-        android:inputType="date" />
+        android:hint="Dose"
+        android:inputType="number" />
 
     <Button
         android:id="@+id/submitButton"

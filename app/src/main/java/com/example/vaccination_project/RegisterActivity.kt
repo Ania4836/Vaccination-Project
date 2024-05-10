@@ -9,11 +9,12 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
-import androidx.lifecycle.lifecycleScope
 import com.example.vaccination_project.db_connection.DBconnection
 import com.example.vaccination_project.db_connection.user.DBqueriesUsers
 import com.example.vaccination_project.db_connection.user.Users
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.sql.Date
@@ -21,13 +22,6 @@ import java.sql.SQLException
 import java.util.Calendar
 import java.util.Locale
 
-/**
- * An activity that handles user registration. It provides form inputs for user details including name, email,
- * password, date of birth, and gender. The activity validates the input fields, communicates with Firebase to
- * create a new user, and stores additional user information in a custom database.
- *
- * Inherits common functionality from [BaseActivity], such as displaying error or success notifications via Snackbar.
- */
 class RegisterActivity : BaseActivity() {
 
     private var inputEmail: EditText? = null
@@ -39,13 +33,6 @@ class RegisterActivity : BaseActivity() {
     private lateinit var inputSex: Spinner
     private lateinit var registerButton: Button
 
-    /**
-     * Sets up the activity layout and initializes UI components. It binds click listeners to the appropriate views
-     * and configures an ArrayAdapter for the gender spinner.
-     *
-     * @param savedInstanceState A Bundle object containing the activity's previously saved state. It is null the first time
-     * an activity is created.
-     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -75,12 +62,6 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Validates the form details entered by the user. Checks if any fields are empty and if the passwords entered match.
-     * Displays error notifications if validations fail.
-     *
-     * @return Boolean indicating whether the form details are valid.
-     */
     private fun validateRegisterDetails(): Boolean {
         return when {
             TextUtils.isEmpty(inputEmail?.text.toString().trim { it <= ' ' }) -> {
@@ -128,52 +109,37 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Registers the user in Firebase, handles user authentication, and stores user details in a custom database.
-     * Displays a success message upon successful registration or an error message if registration fails.
-     */
-    private fun registerUser() {
-        if (validateRegisterDetails()) {
-            val userId: Int = (100000..999999).random()
-            val email: String = inputEmail?.text.toString().trim()
-            val firstName: String = inputFirstName?.text.toString().trim()
-            val lastName: String = inputLastName?.text.toString().trim()
-            val password: String = inputPassword?.text.toString().trim()
-            val dateOfBirth: Date = Date.valueOf(inputDOB.text.toString().trim())
-            val sex = inputSex.selectedItem.toString()
+   private fun registerUser() {
+       if (validateRegisterDetails()) {
+           val email: String = inputEmail?.text.toString().trim()
+           val firstName: String = inputFirstName?.text.toString().trim()
+           val lastName: String = inputLastName?.text.toString().trim()
+           val password: String = inputPassword?.text.toString().trim()
+           val dateOfBirth: Date = Date.valueOf(inputDOB.text.toString().trim())
+           val sex = inputSex.selectedItem.toString()
 
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        task.result!!.user!!
 
-                        saveUserToDatabase(userId, firstName, lastName, dateOfBirth, sex)
+           FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+               .addOnCompleteListener(this) { task ->
+                   if (task.isSuccessful) {
+                       val firebaseUser: FirebaseUser = task.result?.user!!
+                       val userId = firebaseUser.uid
 
-                        showErrorSnackBar(
-                            "You are registered successfully. Your user id is $userId.",
-                            false
-                        )
+                       saveUserToDatabase(userId, firstName, lastName, dateOfBirth, sex)
+                       showErrorSnackBar(
+                           "You are registered successfully. Your user id is $userId.",
+                           false
+                       )
+                   } else {
+                       showErrorSnackBar(task.exception!!.message.toString(), true)
+                   }
+               }
+       }
 
-                        FirebaseAuth.getInstance().signOut()
-                        finish()
-                    } else {
-                        showErrorSnackBar(task.exception!!.message.toString(), true)
-                    }
-                }
-        }
-    }
+   }
 
-    /**
-     * Stores additional user information in the database after successful Firebase authentication.
-     *
-     * @param userId The unique identifier for the user.
-     * @param firstName The user's first name.
-     * @param lastName The user's last name.
-     * @param dateOfBirth The user's date of birth.
-     * @param sex The user's gender.
-     */
     private fun saveUserToDatabase(
-        userId: Int,
+        userId: String,
         firstName: String,
         lastName: String,
         dateOfBirth: Date,
@@ -211,9 +177,6 @@ class RegisterActivity : BaseActivity() {
         finish()
     }
 
-    /**
-     * Displays a DatePicker dialog to select the date of birth. Updates the DOB EditText with the chosen date.
-     */
     private fun showDatePickerDialog() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -230,6 +193,7 @@ class RegisterActivity : BaseActivity() {
             month,
             day
         )
+
         datePickerDialog.show()
     }
 }
