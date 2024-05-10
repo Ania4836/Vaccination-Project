@@ -32,7 +32,7 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
     override fun updateUser(userId: String, users: Users): Boolean {
         val query = "{CALL updateUser(?, ?, ?, ?, ?)}"
         val callableStatement = connection.prepareCall(query)
-        callableStatement.setInt(1, users.userId)
+        callableStatement.setString(1, users.userId)
         callableStatement.setString(2, users.firstName)
         callableStatement.setString(3, users.lastName)
         callableStatement.setDate(4, users.dateOfBirth)
@@ -51,7 +51,7 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
     override fun insertUser(user: Users): Boolean {
         val call = "{CALL insertUser(?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
-        statement.setInt(1, user.userId)
+        statement.setString(1, user.userId)
         statement.setString(2, user.firstName)
         statement.setString(3, user.lastName)
         statement.setDate(4, user.dateOfBirth)
@@ -63,7 +63,7 @@ class DBqueriesUsers(private val connection: Connection) : UsersDAO {
 
     private fun mapResultSetToUser(resultSet: ResultSet): Users? {
         return Users(
-            userId = resultSet.getInt("userId"),
+            userId = resultSet.getString("userId"),
             firstName = resultSet.getString("firstName"),
             lastName = resultSet.getString("lastName"),
             dateOfBirth = resultSet.getDate("dateOfBirth"),

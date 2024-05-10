@@ -9,11 +9,12 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
-import androidx.lifecycle.lifecycleScope
 import com.example.vaccination_project.db_connection.DBconnection
 import com.example.vaccination_project.db_connection.user.DBqueriesUsers
 import com.example.vaccination_project.db_connection.user.Users
 import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.sql.Date
@@ -108,40 +109,37 @@ class RegisterActivity : BaseActivity() {
         }
     }
 
+   private fun registerUser() {
+       if (validateRegisterDetails()) {
+           val email: String = inputEmail?.text.toString().trim()
+           val firstName: String = inputFirstName?.text.toString().trim()
+           val lastName: String = inputLastName?.text.toString().trim()
+           val password: String = inputPassword?.text.toString().trim()
+           val dateOfBirth: Date = Date.valueOf(inputDOB.text.toString().trim())
+           val sex = inputSex.selectedItem.toString()
 
-    private fun registerUser() {
-        if (validateRegisterDetails()) {
-            val userId: Int = (100000..999999).random()
-            val email: String = inputEmail?.text.toString().trim()
-            val firstName: String = inputFirstName?.text.toString().trim()
-            val lastName: String = inputLastName?.text.toString().trim()
-            val password: String = inputPassword?.text.toString().trim()
-            val dateOfBirth: Date = Date.valueOf(inputDOB.text.toString().trim())
-            val sex = inputSex.selectedItem.toString()
 
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        task.result!!.user!!
+           FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+               .addOnCompleteListener(this) { task ->
+                   if (task.isSuccessful) {
+                       val firebaseUser: FirebaseUser = task.result?.user!!
+                       val userId = firebaseUser.uid
 
-                        saveUserToDatabase(userId, firstName, lastName, dateOfBirth, sex)
+                       saveUserToDatabase(userId, firstName, lastName, dateOfBirth, sex)
+                       showErrorSnackBar(
+                           "You are registered successfully. Your user id is $userId.",
+                           false
+                       )
+                   } else {
+                       showErrorSnackBar(task.exception!!.message.toString(), true)
+                   }
+               }
+       }
 
-                        showErrorSnackBar(
-                            "You are registered successfully. Your user id is $userId.",
-                            false
-                        )
-
-                        FirebaseAuth.getInstance().signOut()
-                        finish()
-                    } else {
-                        showErrorSnackBar(task.exception!!.message.toString(), true)
-                    }
-                }
-        }
-    }
+   }
 
     private fun saveUserToDatabase(
-        userId: Int,
+        userId: String,
         firstName: String,
         lastName: String,
         dateOfBirth: Date,

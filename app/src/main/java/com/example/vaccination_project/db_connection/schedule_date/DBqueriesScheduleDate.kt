@@ -34,7 +34,7 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         val callableStatement = connection.prepareCall(query)
         callableStatement.setInt(1, id)
         callableStatement.setInt(2, scheduleDate.vaccineId ?: 0)
-        callableStatement.setInt(3, scheduleDate.userId)
+        callableStatement.setString(3, scheduleDate.userId)
         callableStatement.setInt(4, scheduleDate.doctorId ?: 0)
         callableStatement.setDate(5, scheduleDate.scheduledDate)
         callableStatement.setTime(6, scheduleDate.scheduledTime)
@@ -55,7 +55,7 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         val call = "{CALL insertScheduleDate(?, ?, ?, ?, ?, ?, ?)}"
         val statement = connection.prepareCall(call)
         statement.setInt(1, scheduleDate.vaccineId)
-        statement.setInt(2, scheduleDate.userId)
+        statement.setString(2, scheduleDate.userId)
         statement.setInt(3, scheduleDate.doctorId)
         statement.setDate(4, scheduleDate.scheduledDate)
         statement.setTime(5, scheduleDate.scheduledTime)
@@ -71,7 +71,7 @@ class DBqueriesScheduleDate(private val connection: Connection) : ScheduleDateDA
         return ScheduleDate(
             id = resultSet.getInt("id"),
             vaccineId = resultSet.getInt("vaccineId"),
-            userId = resultSet.getInt("userId"),
+            userId = resultSet.getString("userId"),
             doctorId = resultSet.getInt("doctorId"),
             scheduledDate = resultSet.getDate("scheduledDate"),
             scheduledTime = resultSet.getTime("scheduledTime"),
