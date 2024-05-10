@@ -94,14 +94,14 @@ class AddVaccinationRecordActivity : AppCompatActivity() {
                     "INSERT INTO Schedule_table (id, vaccineId, userId, doctorId, scheduledTime, status, scheduledDate, dose, intervalBetweenDoses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 )
 
-                val defaultDoctorId = 0
-                val defaultTime = Time(System.currentTimeMillis()) // Set default time to current time
-                val defaultInterval = 0 // Set default interval to 0 or any other suitable value
+
+                val defaultTime = Time(System.currentTimeMillis())
+                val defaultInterval = 0
 
                 insertStatement.setInt(1, id)
                 insertStatement.setInt(2, vaccineId)
                 insertStatement.setString(3, userId)
-                insertStatement.setInt(4, defaultDoctorId) // Set default value for doctorId
+                insertStatement.setNull(4, java.sql.Types.INTEGER)
                 insertStatement.setTime(5, defaultTime) // Set default value for scheduledTime
                 insertStatement.setString(6, status)
                 insertStatement.setDate(7, Date(dateScheduled.time))
